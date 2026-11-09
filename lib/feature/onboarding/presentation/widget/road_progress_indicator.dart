@@ -1,4 +1,4 @@
-import 'package:book_drive_car/core/theme/app_colors.dart';
+import 'package:book_car/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class RoadProgressIndicator extends StatelessWidget {

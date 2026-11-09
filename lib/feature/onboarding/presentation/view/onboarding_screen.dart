@@ -1,12 +1,10 @@
-import 'package:book_drive_car/core/di/injection_container.dart';
-import 'package:book_drive_car/core/storage/user_local_storage.dart';
-import 'package:book_drive_car/core/theme/app_colors.dart';
-import 'package:book_drive_car/core/theme/app_typography.dart';
-import 'package:book_drive_car/features/auth/presentation/view/login_screen.dart';
-import 'package:book_drive_car/features/onboarding/data/onboarding_page_data.dart';
-import 'package:book_drive_car/features/onboarding/presentation/widget/road_progress_indicator.dart';
-import 'package:book_drive_car/shared/widget/app_buttons.dart';
-import 'package:book_drive_car/shared/widget/tap_scale.dart';
+import 'package:book_car/core/storage/user_local_storage.dart';
+import 'package:book_car/core/theme/app_colors.dart';
+import 'package:book_car/core/theme/app_typography.dart';
+import 'package:book_car/feature/onboarding/data/onboarding_page_data.dart';
+import 'package:book_car/feature/onboarding/presentation/widget/road_progress_indicator.dart';
+import 'package:book_car/shared/widget/app_buttons.dart';
+import 'package:book_car/shared/widget/tap_scale.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {

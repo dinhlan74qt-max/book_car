@@ -1,10 +1,9 @@
-import 'package:book_drive_car/core/di/injection_container.dart';
-import 'package:book_drive_car/features/auth/presentation/view/login_screen.dart';
-import 'package:book_drive_car/features/onboarding/presentation/view/onboarding_screen.dart';
-import 'package:book_drive_car/shared/widget/bottom_navigation_bar.dart';
-import 'package:book_drive_car/core/storage/user_local_storage.dart';
-import 'package:book_drive_car/core/theme/app_colors.dart';
-import 'package:book_drive_car/core/theme/app_typography.dart';
+import 'package:book_car/core/di/injection_container.dart';
+import 'package:book_car/feature/onboarding/presentation/view/onboarding_screen.dart';
+import 'package:book_car/shared/widget/bottom_navigation_bar.dart';
+import 'package:book_car/core/storage/user_local_storage.dart';
+import 'package:book_car/core/theme/app_colors.dart';
+import 'package:book_car/core/theme/app_typography.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,9 +31,10 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _animController, curve: Curves.easeOutBack),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeIn));
 
     _animController.forward();
     _bootstrap();
@@ -75,15 +75,16 @@ class _SplashScreenState extends State<SplashScreen>
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.04),
-                end: Offset.zero,
-              ).animate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                ),
-              ),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0, 0.04),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
               child: child,
             ),
           );
