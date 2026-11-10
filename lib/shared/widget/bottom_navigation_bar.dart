@@ -231,3 +231,34 @@ class _FloatingGlassNavBar extends StatelessWidget {
     );
   }
 }
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Khám phá')));
+}
+
+class RentalScreen extends StatelessWidget {
+  const RentalScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Đơn thuê')));
+}
+
+class AiAssistantScreen extends StatelessWidget {
+  const AiAssistantScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Trợ lý AI')));
+}
+
+class WalletScreen extends StatelessWidget {
+  const WalletScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Ví CarNow')));
+}
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Tài khoản')));
+}
+

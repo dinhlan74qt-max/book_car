@@ -1,9 +1,9 @@
-import 'package:book_drive_car/core/theme/app_colors.dart';
-import 'package:book_drive_car/core/theme/app_typography.dart';
-import 'package:book_drive_car/features/auth/presentation/view/login_screen.dart';
-import 'package:book_drive_car/features/auth/presentation/view/register_screen.dart';
-import 'package:book_drive_car/shared/widget/app_buttons.dart';
-import 'package:book_drive_car/shared/widget/staggered_fade_in.dart';
+import 'package:book_car/core/theme/app_colors.dart';
+import 'package:book_car/core/theme/app_typography.dart';
+import 'package:book_car/features/auth/presentation/view/login_screen.dart';
+import 'package:book_car/features/auth/presentation/view/register_screen.dart';
+import 'package:book_car/shared/widget/app_buttons.dart';
+import 'package:book_car/shared/widget/staggered_fade_in.dart';
 import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatelessWidget {
