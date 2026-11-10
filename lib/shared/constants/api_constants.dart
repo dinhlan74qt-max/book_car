@@ -1,0 +1,27 @@
+class ApiConstants {
+  static const String baseUrl = _devicePhysical;
+
+  // Thiết bị thật (đổi theo IP LAN máy tính của bạn, dùng ipconfig để xem)
+  static const String _devicePhysical = "http://thuexetulai.click:8080";
+
+  // Endpoint cụ thể
+  static const String sendOtp = "$baseUrl/api/auth/register/send-otp";
+  static const String verifyOtp = "$baseUrl/api/auth/register/verify-otp";
+  static const String login = "$baseUrl/api/auth/login";
+  static const String vehicles = "$baseUrl/api/vehicles";
+  static const String searchVehicles = "$baseUrl/api/vehicles/search";
+  static const String myVehicles = "$baseUrl/api/vehicles/my-vehicles";
+  static const String myWallet = "$baseUrl/api/my-wallet";
+  static const String deposits = "$baseUrl/api/my-wallet/deposit";
+  static const String bookings = "$baseUrl/api/booking";
+  static const String bookingStatus = "$baseUrl/api/booking/status";
+  static const String renterBookings = "$baseUrl/api/booking/renter/list";
+  static const String checkVerified = "$baseUrl/api/users/checkverified";
+  static const String contractUpload = "$baseUrl/api/contracts/upload";
+  static const String withdraw = "$baseUrl/api/withdraw";
+  static const String verification = "$baseUrl/api/users/veri";
+  static const String verificationStatus = "$baseUrl/api/users/veri/status";
+  static const String aiChat = "$baseUrl/api/ai/chat";
+  static const String changePassword = "$baseUrl/api/users/me/password";
+  static const String favorites = "$baseUrl/api/favorites";
+}
