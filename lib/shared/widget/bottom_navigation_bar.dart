@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:book_car/core/theme/app_colors.dart';
 import 'package:book_car/core/theme/app_typography.dart';
+import 'package:book_car/features/ai_assistant/presentation/view/ai_assistant_screen.dart';
 import 'package:book_car/shared/widget/tap_scale.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -242,12 +243,6 @@ class RentalScreen extends StatelessWidget {
   const RentalScreen({super.key});
   @override
   Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Đơn thuê')));
-}
-
-class AiAssistantScreen extends StatelessWidget {
-  const AiAssistantScreen({super.key});
-  @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Trợ lý AI')));
 }
 
 class WalletScreen extends StatelessWidget {

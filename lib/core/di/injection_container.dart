@@ -14,6 +14,12 @@ import 'package:book_car/features/auth/domain/usecases/verify_otp.dart';
 import 'package:book_car/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:book_car/features/auth/presentation/bloc/send_otp_bloc.dart';
 
+import 'package:book_car/features/ai_assistant/data/datasources/ai_remote_data_source.dart';
+import 'package:book_car/features/ai_assistant/data/repositories/ai_repository_impl.dart';
+import 'package:book_car/features/ai_assistant/domain/repositories/ai_repository.dart';
+import 'package:book_car/features/ai_assistant/domain/usecases/send_ai_chat_message.dart';
+import 'package:book_car/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
+
 final sl = GetIt.instance;
 
 @InjectableInit()
@@ -77,6 +83,28 @@ Future<void> configureDependencies() async {
   if (!sl.isRegistered<SendOtpBloc>()) {
     sl.registerFactory<SendOtpBloc>(
       () => SendOtpBloc(sl<SendOtp>()),
+    );
+  }
+
+  // 5. AI Assistant
+  if (!sl.isRegistered<AiRemoteDataSource>()) {
+    sl.registerLazySingleton<AiRemoteDataSource>(
+      () => AiRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
+    );
+  }
+  if (!sl.isRegistered<AiRepository>()) {
+    sl.registerLazySingleton<AiRepository>(
+      () => AiRepositoryImpl(sl<AiRemoteDataSource>()),
+    );
+  }
+  if (!sl.isRegistered<SendAiChatMessage>()) {
+    sl.registerFactory<SendAiChatMessage>(
+      () => SendAiChatMessage(sl<AiRepository>()),
+    );
+  }
+  if (!sl.isRegistered<AiAssistantBloc>()) {
+    sl.registerFactory<AiAssistantBloc>(
+      () => AiAssistantBloc(sl<SendAiChatMessage>()),
     );
   }
 }
