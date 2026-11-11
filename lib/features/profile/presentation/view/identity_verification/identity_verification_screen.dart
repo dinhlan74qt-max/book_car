@@ -1,0 +1,753 @@
+import 'package:book_drive_car/core/di/injection_container.dart';
+import 'package:book_drive_car/core/theme/app_colors.dart';
+import 'package:book_drive_car/core/theme/app_typography.dart';
+import 'package:book_drive_car/features/profile/domain/repositories/verification_repository.dart';
+import 'package:book_drive_car/features/profile/domain/entities/verification_entity.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/step1_basic_info_section.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/step2_cccd_section.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/step3_driver_license_section.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/step4_selfie_section.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/step5_emergency_contact_section.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/step6_agreement_section.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/verification_image_picker_box.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/widgets/verification_step_indicator.dart';
+import 'package:book_drive_car/shared/widget/app_buttons.dart';
+import 'package:book_drive_car/shared/widget/app_toast.dart';
+import 'package:book_drive_car/shared/widget/tap_scale.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+class IdentityVerificationScreen extends StatefulWidget {
+  final VerificationData? initialData;
+
+  const IdentityVerificationScreen({super.key, this.initialData});
+
+  @override
+  State<IdentityVerificationScreen> createState() => _IdentityVerificationScreenState();
+}
+
+class _IdentityVerificationScreenState extends State<IdentityVerificationScreen> {
+  int _currentStep = 0;
+  bool _isSubmitting = false;
+  VerificationData? _data;
+
+  // Controllers - Step 1: Basic Info
+  late final TextEditingController _fullNameController;
+  late final TextEditingController _dobController;
+  late final TextEditingController _cccdController;
+  late final TextEditingController _addressController;
+
+  // Controllers - Step 2: ID Photos
+  String? _cccdFrontImage;
+  String? _cccdBackImage;
+
+  // Controllers - Step 3: Driver License
+  late final TextEditingController _licenseNumberController;
+  late final TextEditingController _licenseIssueDateController;
+  late final TextEditingController _licenseExpiryDateController;
+  String _selectedLicenseClass = 'B2';
+  String? _licenseFrontImage;
+  String? _licenseBackImage;
+
+  // Controllers - Step 4: Selfie
+  String? _selfieImage;
+
+  // Controllers - Step 5: Emergency Contact
+  late final TextEditingController _emergencyNameController;
+  late final TextEditingController _emergencyPhoneController;
+  String _emergencyRelation = 'Bố/Mẹ';
+
+  // Step 6: Agreement
+  bool _hasAgreedTerms = false;
+
+  // Validations & Alerts
+  String? _ageWarning;
+  String? _licenseWarning;
+
+  final List<String> _licenseClasses = const ['B1 (Tự động)', 'B1', 'B2', 'C', 'D', 'E', 'A1', 'A2'];
+  final List<String> _relations = const ['Bố/Mẹ', 'Anh/Chị/Em', 'Vợ/Chồng', 'Bạn bè', 'Khác'];
+
+  @override
+  void initState() {
+    super.initState();
+    final d = widget.initialData;
+    _data = d;
+
+    _fullNameController = TextEditingController(text: d?.fullName ?? '');
+    _dobController = TextEditingController(text: d?.dob ?? '');
+    _cccdController = TextEditingController(text: d?.cccdNumber ?? '');
+    _addressController = TextEditingController(text: d?.address ?? '');
+
+    _cccdFrontImage = d?.cccdFrontImage;
+    _cccdBackImage = d?.cccdBackImage;
+
+    _licenseNumberController = TextEditingController(text: d?.licenseNumber ?? '');
+    _licenseIssueDateController = TextEditingController(text: d?.licenseIssueDate ?? '');
+    _licenseExpiryDateController = TextEditingController(text: d?.licenseExpiryDate ?? '15/12/2030');
+    _selectedLicenseClass = d?.licenseClass ?? 'B2';
+
+    _licenseFrontImage = d?.licenseFrontImage;
+    _licenseBackImage = d?.licenseBackImage;
+
+    _selfieImage = d?.selfieImage;
+
+    _emergencyNameController = TextEditingController(text: d?.emergencyContactName ?? '');
+    _emergencyPhoneController = TextEditingController(text: d?.emergencyContactPhone ?? '');
+    _emergencyRelation = d?.emergencyContactRelation ?? 'Bố/Mẹ';
+
+    _hasAgreedTerms = d?.hasAgreedTerms ?? false;
+
+    _fullNameController.addListener(_onFieldChanged);
+    _dobController.addListener(_onFieldChanged);
+    _cccdController.addListener(_onFieldChanged);
+    _addressController.addListener(_onFieldChanged);
+    _licenseNumberController.addListener(_onFieldChanged);
+    _licenseIssueDateController.addListener(_onFieldChanged);
+    _licenseExpiryDateController.addListener(_onFieldChanged);
+    _emergencyNameController.addListener(_onFieldChanged);
+    _emergencyPhoneController.addListener(_onFieldChanged);
+
+    if (_dobController.text.isNotEmpty) {
+      _calculateAge(_dobController.text);
+    }
+    if (_licenseExpiryDateController.text.isNotEmpty) {
+      _validateLicenseExpiry(_licenseExpiryDateController.text);
+    }
+    _syncKyc();
+  }
+
+  Future<void> _syncKyc() async {
+    try {
+      final synced = await sl<VerificationRepository>().syncVerification();
+      if (!mounted) return;
+      setState(() {
+        _data = synced;
+        if (synced.fullName?.isNotEmpty == true && _fullNameController.text.isEmpty) {
+          _fullNameController.text = synced.fullName!;
+        }
+        if (synced.cccdNumber?.isNotEmpty == true && _cccdController.text.isEmpty) {
+          _cccdController.text = synced.cccdNumber!;
+        }
+        if (synced.address?.isNotEmpty == true && _addressController.text.isEmpty) {
+          _addressController.text = synced.address!;
+        }
+      });
+    } catch (_) {}
+  }
+
+  void _onFieldChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.removeListener(_onFieldChanged);
+    _dobController.removeListener(_onFieldChanged);
+    _cccdController.removeListener(_onFieldChanged);
+    _addressController.removeListener(_onFieldChanged);
+    _licenseNumberController.removeListener(_onFieldChanged);
+    _licenseIssueDateController.removeListener(_onFieldChanged);
+    _licenseExpiryDateController.removeListener(_onFieldChanged);
+    _emergencyNameController.removeListener(_onFieldChanged);
+    _emergencyPhoneController.removeListener(_onFieldChanged);
+
+    _fullNameController.dispose();
+    _dobController.dispose();
+    _cccdController.dispose();
+    _addressController.dispose();
+    _licenseNumberController.dispose();
+    _licenseIssueDateController.dispose();
+    _licenseExpiryDateController.dispose();
+    _emergencyNameController.dispose();
+    _emergencyPhoneController.dispose();
+    super.dispose();
+  }
+
+  void _calculateAge(String dobStr) {
+    try {
+      final parts = dobStr.split('/');
+      if (parts.length == 3) {
+        final birthDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        final today = DateTime.now();
+        int age = today.year - birthDate.year;
+        if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
+          age--;
+        }
+        if (age < 21) {
+          setState(() => _ageWarning = 'Cảnh báo: Bạn hiện $age tuổi (chưa đủ 21 tuổi để thuê xe tự lái).');
+        } else {
+          setState(() => _ageWarning = null);
+        }
+      }
+    } catch (_) {
+      setState(() => _ageWarning = null);
+    }
+  }
+
+  void _validateLicenseExpiry(String expiryStr) {
+    try {
+      final parts = expiryStr.split('/');
+      if (parts.length == 3) {
+        final expiryDate = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        if (expiryDate.isBefore(DateTime.now())) {
+          setState(() => _licenseWarning = 'Cảnh báo: GPLX của bạn đã hết hạn sử dụng.');
+        } else {
+          setState(() => _licenseWarning = null);
+        }
+      }
+    } catch (_) {
+      setState(() => _licenseWarning = null);
+    }
+  }
+
+  bool get _isReadOnly {
+    final s = _data?.status ?? widget.initialData?.status;
+    return s == VerificationStatus.pending || s == VerificationStatus.verified;
+  }
+
+  bool _isStepValid(int step) {
+    if (_isReadOnly) return true;
+    switch (step) {
+      case 0:
+        return _fullNameController.text.trim().isNotEmpty &&
+            _dobController.text.trim().isNotEmpty &&
+            _cccdController.text.trim().length >= 9 &&
+            _addressController.text.trim().isNotEmpty;
+      case 1:
+        return _cccdFrontImage != null &&
+            _cccdFrontImage!.isNotEmpty &&
+            _cccdBackImage != null &&
+            _cccdBackImage!.isNotEmpty;
+      case 2:
+        return _licenseNumberController.text.trim().isNotEmpty &&
+            _licenseIssueDateController.text.trim().isNotEmpty &&
+            _licenseExpiryDateController.text.trim().isNotEmpty &&
+            _licenseFrontImage != null &&
+            _licenseFrontImage!.isNotEmpty &&
+            _licenseBackImage != null &&
+            _licenseBackImage!.isNotEmpty;
+      case 3:
+        return _selfieImage != null && _selfieImage!.isNotEmpty;
+      case 4:
+        return _emergencyNameController.text.trim().isNotEmpty &&
+            _emergencyPhoneController.text.trim().length >= 10;
+      case 5:
+        return _hasAgreedTerms;
+      default:
+        return false;
+    }
+  }
+
+  Future<void> _selectDate(TextEditingController controller, {bool isDob = false}) async {
+    if (_isReadOnly) return;
+    final now = DateTime.now();
+    final initialDate = isDob ? DateTime(2000, 1, 1) : now;
+    final firstDate = isDob ? DateTime(1940) : DateTime(2000);
+    final lastDate = isDob ? now : DateTime(2045);
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+    );
+
+    if (picked != null) {
+      final formatted = DateFormat('dd/MM/yyyy').format(picked);
+      controller.text = formatted;
+      if (isDob) _calculateAge(formatted);
+      if (!isDob && controller == _licenseExpiryDateController) _validateLicenseExpiry(formatted);
+    }
+  }
+
+  Future<void> _chooseImage(Function(String path) onSelected) async {
+    if (_isReadOnly) return;
+    await VerificationImagePickerBox.showImagePickerSheet(
+      context: context,
+      onSelected: onSelected,
+    );
+  }
+
+  Future<void> _submitVerification() async {
+    setState(() => _isSubmitting = true);
+
+    final data = VerificationData(
+      fullName: _fullNameController.text.trim(),
+      dob: _dobController.text.trim(),
+      cccdNumber: _cccdController.text.trim(),
+      address: _addressController.text.trim(),
+      cccdFrontImage: _cccdFrontImage,
+      cccdBackImage: _cccdBackImage,
+      licenseNumber: _licenseNumberController.text.trim(),
+      licenseClass: _selectedLicenseClass,
+      licenseIssueDate: _licenseIssueDateController.text.trim(),
+      licenseExpiryDate: _licenseExpiryDateController.text.trim(),
+      licenseFrontImage: _licenseFrontImage,
+      licenseBackImage: _licenseBackImage,
+      selfieImage: _selfieImage,
+      emergencyContactName: _emergencyNameController.text.trim(),
+      emergencyContactPhone: _emergencyPhoneController.text.trim(),
+      emergencyContactRelation: _emergencyRelation,
+      hasAgreedTerms: _hasAgreedTerms,
+      status: VerificationStatus.pending,
+      submittedAt: DateTime.now(),
+    );
+
+    try {
+      await sl<VerificationRepository>().submitVerification(data);
+    } catch (_) {}
+
+    await sl<VerificationRepository>().saveVerificationData(data);
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    AppToast.showSuccess(context, 'Hồ sơ xác minh đã được gửi thành công!');
+    Navigator.of(context).pop(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? AppColors.darkBackground : AppColors.background;
+    final surfaceColor = isDark ? AppColors.darkSurface : AppColors.surface;
+    final borderColor = isDark ? AppColors.darkBorder : AppColors.border;
+    final textPrimary = isDark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+    final textSecondary = isDark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+    final iconBg = isDark ? AppColors.darkSurfaceSecondary : AppColors.surfaceSecondary;
+
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        titleSpacing: 4,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    'Xác Thực Danh Tính',
+                    style: AppTypography.headingMd.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 16,
+                      color: textPrimary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    'eKYC',
+                    style: TextStyle(
+                      color: Color(0xFF10B981),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'Bước ${_currentStep + 1}/6: ${VerificationStepIndicator.stepTitles[_currentStep]}',
+              style: AppTypography.bodySmall.copyWith(
+                color: textSecondary,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+            decoration: BoxDecoration(
+              color: isDark
+                  ? AppColors.darkSurfaceSecondary
+                  : AppColors.surfaceSecondary,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.shield_outlined,
+                  size: 13,
+                  color: Color(0xFF10B981),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  'Bảo mật',
+                  style: TextStyle(
+                    color: Color(0xFF10B981),
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+        backgroundColor: surfaceColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Center(
+            child: TapScale(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: borderColor),
+                ),
+                child: Icon(
+                  Icons.arrow_back_rounded,
+                  size: 20,
+                  color: textPrimary,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          // ── Thanh tiến trình các bước ─────────────────────────────────────
+          VerificationStepIndicator(
+            currentStep: _currentStep,
+            isStepValid: _isStepValid,
+            onStepTapped: (step) => setState(() => _currentStep = step),
+          ),
+
+          // ── Nội dung từng bước ────────────────────────────────────────────
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if ((_data?.status ?? widget.initialData?.status) == VerificationStatus.pending)
+                    _buildPendingNoticeBanner(isDark),
+                  if ((_data?.status ?? widget.initialData?.status) == VerificationStatus.rejected)
+                    _buildRejectedNoticeBanner(isDark),
+                  if ((_data?.status ?? widget.initialData?.status) == VerificationStatus.verified)
+                    _buildVerifiedNoticeBanner(isDark),
+                  _buildStepContent(_currentStep),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Sticky Bottom Dock ────────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+            decoration: BoxDecoration(
+              color: surfaceColor,
+              border: Border(top: BorderSide(color: borderColor, width: 0.8)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              top: false,
+              child: Row(
+                children: [
+                  if (_currentStep > 0)
+                    Expanded(
+                      flex: 1,
+                      child: AppButton(
+                        text: 'Quay lại',
+                        variant: AppButtonVariant.outline,
+                        height: 50,
+                        onPressed: () => setState(() => _currentStep--),
+                      ),
+                    ),
+                  if (_currentStep > 0) const SizedBox(width: 12),
+                  Expanded(
+                    flex: _currentStep > 0 ? 2 : 1,
+                    child: _currentStep < 5
+                        ? AppButton(
+                            text: 'Tiếp theo',
+                            variant: AppButtonVariant.primary,
+                            height: 50,
+                            trailingIcon: const Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            onPressed: _isStepValid(_currentStep)
+                                ? () => setState(() => _currentStep++)
+                                : null,
+                          )
+                        : (_isReadOnly
+                            ? AppButton(
+                                text: 'Đóng (Chỉ xem)',
+                                variant: AppButtonVariant.primary,
+                                height: 50,
+                                icon: const Icon(
+                                  Icons.check_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                onPressed: () => Navigator.of(context).pop(),
+                              )
+                            : AppButton(
+                                text: (_data?.status ?? widget.initialData?.status) ==
+                                        VerificationStatus.rejected
+                                    ? 'Nộp lại hồ sơ xét duyệt'
+                                    : 'Gửi hồ sơ xác minh',
+                                variant: AppButtonVariant.primary,
+                                height: 50,
+                                icon: const Icon(
+                                  Icons.check_circle_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                isLoading: _isSubmitting,
+                                onPressed: _isSubmitting || !_hasAgreedTerms
+                                    ? null
+                                    : _submitVerification,
+                              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPendingNoticeBanner(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1976D2).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1976D2).withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1976D2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.hourglass_top_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Hồ sơ đang được xét duyệt',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: Color(0xFF1976D2),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  'Hồ sơ của bạn đang được ban quản trị thẩm định. Bạn chỉ có quyền xem lại thông tin đã gửi và không thể chỉnh sửa lúc này.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.white70 : const Color(0xFF0D47A1),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRejectedNoticeBanner(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.danger.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: AppColors.danger,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.cancel_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Hồ sơ bị từ chối phê duyệt',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                    color: AppColors.danger,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  widget.initialData?.rejectionReason ??
+                      'Giấy tờ hoặc thông tin chưa hợp lệ. Vui lòng cập nhật lại và gửi xét duyệt lại.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? Colors.white70 : const Color(0xFF991B1B),
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerifiedNoticeBanner(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF10B981).withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 22),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Hồ sơ của bạn đã được chứng thực eKYC thành công!',
+              style: TextStyle(
+                color: Color(0xFF065F46),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepContent(int step) {
+    switch (step) {
+      case 0:
+        return Step1BasicInfoSection(
+          fullNameController: _fullNameController,
+          dobController: _dobController,
+          cccdController: _cccdController,
+          addressController: _addressController,
+          ageWarning: _ageWarning,
+          isReadOnly: _isReadOnly,
+          onSelectDob: () => _selectDate(_dobController, isDob: true),
+        );
+      case 1:
+        return Step2CccdSection(
+          cccdFrontImage: _cccdFrontImage,
+          cccdBackImage: _cccdBackImage,
+          isReadOnly: _isReadOnly,
+          onPickFront: () => _chooseImage((path) => setState(() => _cccdFrontImage = path)),
+          onPickBack: () => _chooseImage((path) => setState(() => _cccdBackImage = path)),
+        );
+      case 2:
+        return Step3DriverLicenseSection(
+          licenseNumberController: _licenseNumberController,
+          licenseIssueDateController: _licenseIssueDateController,
+          licenseExpiryDateController: _licenseExpiryDateController,
+          selectedLicenseClass: _selectedLicenseClass,
+          licenseClasses: _licenseClasses,
+          licenseWarning: _licenseWarning,
+          licenseFrontImage: _licenseFrontImage,
+          licenseBackImage: _licenseBackImage,
+          isReadOnly: _isReadOnly,
+          onClassChanged: (val) => setState(() => _selectedLicenseClass = val ?? 'B2'),
+          onSelectIssueDate: () => _selectDate(_licenseIssueDateController),
+          onSelectExpiryDate: () => _selectDate(_licenseExpiryDateController),
+          onPickFront: () => _chooseImage((path) => setState(() => _licenseFrontImage = path)),
+          onPickBack: () => _chooseImage((path) => setState(() => _licenseBackImage = path)),
+        );
+      case 3:
+        return Step4SelfieSection(
+          selfieImage: _selfieImage,
+          isReadOnly: _isReadOnly,
+          onPickSelfie: () => _chooseImage((path) {
+            setState(() => _selfieImage = path);
+            AppToast.showSuccess(context, 'Đã cập nhật ảnh chân dung!');
+          }),
+        );
+      case 4:
+        return Step5EmergencyContactSection(
+          emergencyNameController: _emergencyNameController,
+          emergencyPhoneController: _emergencyPhoneController,
+          emergencyRelation: _emergencyRelation,
+          relations: _relations,
+          isReadOnly: _isReadOnly,
+          onRelationChanged: (val) => setState(() => _emergencyRelation = val ?? 'Bố/Mẹ'),
+        );
+      case 5:
+        return Step6AgreementSection(
+          fullName: _fullNameController.text.trim(),
+          dob: _dobController.text.trim(),
+          cccdNumber: _cccdController.text.trim(),
+          address: _addressController.text.trim(),
+          licenseNumber: _licenseNumberController.text.trim(),
+          licenseClass: _selectedLicenseClass,
+          emergencyName: _emergencyNameController.text.trim(),
+          emergencyPhone: _emergencyPhoneController.text.trim(),
+          emergencyRelation: _emergencyRelation,
+          hasAgreedTerms: _hasAgreedTerms,
+          isReadOnly: _isReadOnly,
+          onAgreementChanged: (val) => setState(() => _hasAgreedTerms = val ?? false),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+}
