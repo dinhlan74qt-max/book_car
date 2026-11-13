@@ -39,16 +39,31 @@ final sl = GetIt.instance;
 
 @InjectableInit()
 Future<void> configureDependencies() async {
+<<<<<<< HEAD
+  // Storage
+=======
   // HTTP Client
   if (!sl.isRegistered<http.Client>()) {
     sl.registerLazySingleton<http.Client>(() => http.Client());
   }
 
   // 1. Storage
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
   if (!sl.isRegistered<UserLocalStorage>()) {
     sl.registerLazySingleton<UserLocalStorage>(() => UserLocalStorage());
   }
 
+<<<<<<< HEAD
+  // Dio Client
+  if (!sl.isRegistered<Dio>()) {
+    sl.registerLazySingleton<Dio>(
+      () => Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 60),
+          receiveTimeout: const Duration(seconds: 120),
+          sendTimeout: const Duration(seconds: 60),
+          headers: const {
+=======
   // 2. Dio Client có gắn Auth Interceptor
   if (!sl.isRegistered<Dio>()) {
     sl.registerLazySingleton<Dio>(() {
@@ -57,10 +72,18 @@ Future<void> configureDependencies() async {
           connectTimeout: const Duration(seconds: 60),
           receiveTimeout: const Duration(seconds: 60),
           headers: {
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
             'Accept': 'application/json, text/plain, */*',
             'X-Requested-With': 'XMLHttpRequest',
           },
         ),
+<<<<<<< HEAD
+      ),
+    );
+  }
+
+  // AI Assistant Data Source & Repo
+=======
       );
       dio.interceptors.add(AuthInterceptor(sl<UserLocalStorage>()));
       return dio;
@@ -102,6 +125,7 @@ Future<void> configureDependencies() async {
   }
 
   // 5. AI Assistant
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
   if (!sl.isRegistered<AiRemoteDataSource>()) {
     sl.registerLazySingleton<AiRemoteDataSource>(
       () => AiRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
@@ -112,6 +136,11 @@ Future<void> configureDependencies() async {
       () => AiRepositoryImpl(sl<AiRemoteDataSource>()),
     );
   }
+<<<<<<< HEAD
+
+  // UseCase & BLoC
+=======
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
   if (!sl.isRegistered<SendAiChatMessage>()) {
     sl.registerFactory<SendAiChatMessage>(
       () => SendAiChatMessage(sl<AiRepository>()),
@@ -122,6 +151,8 @@ Future<void> configureDependencies() async {
       () => AiAssistantBloc(sl<SendAiChatMessage>()),
     );
   }
+<<<<<<< HEAD
+=======
 
 <<<<<<< HEAD
   // 6. Verification & Vehicle Data Sources
