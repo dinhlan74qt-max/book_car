@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+import 'package:book_car/features/profile/domain/entities/address_entity.dart';
+=======
 import 'package:book_drive_car/features/profile/domain/entities/address_entity.dart';
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
 
 class VehicleEntity {
   final int id;

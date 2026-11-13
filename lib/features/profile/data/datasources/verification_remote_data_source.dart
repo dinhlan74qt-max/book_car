@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:book_drive_car/core/storage/user_local_storage.dart';
-import 'package:book_drive_car/features/profile/domain/entities/verification_entity.dart';
-import 'package:book_drive_car/shared/constants/api_constants.dart';
+import 'package:book_car/core/storage/user_local_storage.dart';
+import 'package:book_car/features/profile/domain/entities/verification_entity.dart';
+import 'package:book_car/shared/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
