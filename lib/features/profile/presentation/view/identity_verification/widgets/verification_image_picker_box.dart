@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:book_drive_car/core/theme/app_colors.dart';
-import 'package:book_drive_car/core/theme/app_typography.dart';
-import 'package:book_drive_car/shared/widget/tap_scale.dart';
+import 'package:book_car/core/theme/app_colors.dart';
+import 'package:book_car/core/theme/app_typography.dart';
+import 'package:book_car/shared/widget/tap_scale.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 

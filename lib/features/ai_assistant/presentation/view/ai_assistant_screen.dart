@@ -6,7 +6,7 @@ import 'package:book_car/features/ai_assistant/presentation/bloc/ai_assistant_ev
 import 'package:book_car/features/ai_assistant/presentation/bloc/ai_assistant_state.dart';
 import 'package:book_car/features/ai_assistant/presentation/bloc/ai_chat_message.dart';
 import 'package:book_car/features/home/domain/entities/car_entity.dart';
-// import 'package:book_car/features/home/presentation/view/car_detail/car_detail_screen.dart';
+import 'package:book_car/features/home/presentation/view/car_detail/car_detail_screen.dart';
 import 'package:book_car/shared/widget/tap_scale.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -103,15 +103,9 @@ class _AiAssistantViewState extends State<_AiAssistantView>
   }
 
   void _openCarDetail(CarEntity car) {
-    // Navigator.of(
-    //   context,
-    // ).push(MaterialPageRoute(builder: (_) => CarDetailScreen(car: car)));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Chi tiết xe: ${car.name} (${car.pricePerDay}đ/ngày)'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => CarDetailScreen(car: car)));
   }
 
   void _showResetConfirmDialog() {

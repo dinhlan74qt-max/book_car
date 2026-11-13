@@ -25,4 +25,8 @@ class AddressModel extends AddressEntity {
       "city": city,
     };
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
