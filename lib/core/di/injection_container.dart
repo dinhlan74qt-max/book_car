@@ -20,6 +20,9 @@ import 'package:book_car/features/ai_assistant/domain/repositories/ai_repository
 import 'package:book_car/features/ai_assistant/domain/usecases/send_ai_chat_message.dart';
 import 'package:book_car/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
 
+import 'package:book_car/features/profile/data/datasources/verification_remote_data_source.dart';
+import 'package:book_car/features/profile/data/datasources/vehicle_remote_data_source.dart';
+
 final sl = GetIt.instance;
 
 @InjectableInit()
@@ -105,6 +108,18 @@ Future<void> configureDependencies() async {
   if (!sl.isRegistered<AiAssistantBloc>()) {
     sl.registerFactory<AiAssistantBloc>(
       () => AiAssistantBloc(sl<SendAiChatMessage>()),
+    );
+  }
+
+  // 6. Verification & Vehicle Data Sources
+  if (!sl.isRegistered<VerificationRemoteDataSource>()) {
+    sl.registerLazySingleton<VerificationRemoteDataSource>(
+      () => VerificationRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
+    );
+  }
+  if (!sl.isRegistered<VehicleRemoteDataSource>()) {
+    sl.registerLazySingleton<VehicleRemoteDataSource>(
+      () => VehicleRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
     );
   }
 }
