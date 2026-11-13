@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'package:book_car/core/di/injection_container.dart';
 import 'package:book_car/core/theme/app_colors.dart';
 import 'package:book_car/core/theme/app_typography.dart';
@@ -12,6 +13,29 @@ import 'package:book_car/features/home/presentation/widget/car_detail_terms_card
 import 'package:book_car/shared/widget/app_buttons.dart';
 import 'package:book_car/shared/widget/app_toast.dart';
 import 'package:book_car/shared/widget/tap_scale.dart';
+=======
+import 'package:book_drive_car/core/di/injection_container.dart';
+import 'package:book_drive_car/core/theme/app_colors.dart';
+import 'package:book_drive_car/core/theme/app_typography.dart';
+import 'package:book_drive_car/core/utils/responsive_utils.dart';
+import 'package:book_drive_car/features/favorite/presentation/manager/favorite_manager.dart';
+import 'package:book_drive_car/features/home/data/models/car_model.dart';
+import 'package:book_drive_car/features/home/domain/repositories/booking_repository.dart';
+import 'package:book_drive_car/features/home/domain/repositories/home_repository.dart';
+import 'package:book_drive_car/features/home/domain/entities/car_entity.dart';
+import 'package:book_drive_car/features/home/presentation/view/car_detail/widgets/car_detail_booking_modal_sheet.dart';
+import 'package:book_drive_car/features/home/presentation/view/car_detail/widgets/car_detail_date_picker_sheet.dart';
+import 'package:book_drive_car/features/home/presentation/view/car_detail/widgets/car_detail_header_widgets.dart';
+import 'package:book_drive_car/features/home/presentation/widget/car_detail_review_card.dart';
+import 'package:book_drive_car/features/home/presentation/widget/car_detail_spec_grid.dart';
+import 'package:book_drive_car/features/home/presentation/widget/car_detail_terms_card.dart';
+import 'package:book_drive_car/features/profile/domain/repositories/verification_repository.dart';
+import 'package:book_drive_car/features/profile/domain/entities/verification_entity.dart';
+import 'package:book_drive_car/features/profile/presentation/view/identity_verification/identity_verification_screen.dart';
+import 'package:book_drive_car/shared/widget/app_buttons.dart';
+import 'package:book_drive_car/shared/widget/app_toast.dart';
+import 'package:book_drive_car/shared/widget/tap_scale.dart';
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -43,6 +67,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   }
 
   void _initFavorite() {
+<<<<<<< HEAD
     _isFavorite = false;
   }
 
@@ -55,10 +80,79 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
           : 'Đã xóa khỏi danh sách yêu thích',
       type: AppToastType.success,
     );
+=======
+    _isFavorite = FavoriteManager.instance.isFavorite(widget.car.id);
+    if (!FavoriteManager.instance.hasInitialLoaded) {
+      FavoriteManager.instance.loadFavorites().then((_) {
+        if (mounted) {
+          setState(() {
+            _isFavorite = FavoriteManager.instance.isFavorite(widget.car.id);
+          });
+        }
+      });
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    final vehicleId = int.tryParse(car.id);
+    if (vehicleId == null) {
+      AppToast.show(
+        context,
+        message: 'Mã xe không hợp lệ',
+        type: AppToastType.warning,
+      );
+      return;
+    }
+
+    // 1. HIỆN TIM ĐỎ LẬP TỨC (Optimistic UI - trước khi gửi request lên server)
+    final nextFavoriteState = !_isFavorite;
+    setState(() => _isFavorite = nextFavoriteState);
+
+    CarModel? fallbackCar;
+    if (car is CarModel) {
+      fallbackCar = car as CarModel;
+    } else {
+      fallbackCar = CarModel(
+        id: car.id,
+        name: car.name,
+        brand: car.brand,
+        vehicleType: car.vehicleType,
+        province: car.province,
+        imageIcon: car.imageIcon,
+        imageUrls: car.imageUrls,
+        pricePerDay: car.pricePerDay,
+        distanceKm: car.distanceKm,
+        seats: car.seats,
+        rating: car.rating,
+        location: car.location,
+        model: car.model,
+        year: car.year,
+        color: car.color,
+        fuelType: car.fuelType,
+        transmission: car.transmission,
+        description: car.description,
+        licensePlate: car.licensePlate,
+        ownerName: car.ownerName,
+        ownerPhone: car.ownerPhone,
+      );
+    }
+
+    // 2. GỬI LÊN SERVER CHẠY NGẦM (Không chờ đợi làm chậm giao diện)
+    try {
+      await FavoriteManager.instance.toggleFavorite(
+        vehicleId,
+        fallbackCar: fallbackCar,
+        persistOptimisticOnFailure: true,
+      );
+    } catch (e) {
+      debugPrint('[CarDetailScreen][_toggleFavorite] Server sync log: $e');
+    }
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
   }
 
   Future<void> _fetchCarDetail() async {
     try {
+<<<<<<< HEAD
       if (sl.isRegistered<HomeRepository>()) {
         final detail = await sl<HomeRepository>().getCarDetail(widget.car.id);
         if (mounted) {
@@ -66,6 +160,13 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
             _car = detail;
           });
         }
+=======
+      final detail = await sl<HomeRepository>().getCarDetail(widget.car.id);
+      if (mounted) {
+        setState(() {
+          _car = detail;
+        });
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
       }
     } catch (_) {
       // Giữ thông tin xe ban đầu nếu không thể tải thêm
@@ -151,6 +252,7 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   }
 
   Future<DateTimeRange?> _pickDateRange(BuildContext context) async {
+<<<<<<< HEAD
     final now = DateTime.now();
     final picked = await showDateRangePicker(
       context: context,
@@ -174,15 +276,150 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   }
 
   Future<void> _handleBookingFlow(BuildContext context) async {
+=======
+    final vehicleId = _vehicleId;
+    if (vehicleId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không lấy được mã xe để kiểm tra lịch đã đặt.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return null;
+    }
+
+    final now = _dateOnly(DateTime.now());
+    final firstDay = _selectedDateRange?.start ?? now;
+    final lastDay = _selectedDateRange?.end ?? now.add(const Duration(days: 1));
+    final hasInitialSelection = _selectedDateRange != null;
+
+    return showModalBottomSheet<DateTimeRange>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return CarDetailDatePickerSheet(
+          vehicleId: vehicleId,
+          bookingRepository: sl<BookingRepository>(),
+          pricePerDay: car.pricePerDay,
+          initialStart: firstDay.isBefore(now) ? now : _dateOnly(firstDay),
+          initialEnd: lastDay.isBefore(now.add(const Duration(days: 1)))
+              ? now.add(const Duration(days: 1))
+              : _dateOnly(lastDay),
+          hasInitialSelection: hasInitialSelection,
+          minDate: now,
+          maxDate: now.add(const Duration(days: 90)),
+          dateOnly: _dateOnly,
+          isSameDay: _isSameDay,
+          weekdayShortLabel: _weekdayShortLabel,
+          monthLabel: _monthLabel,
+          daysForMonth: _daysForMonth,
+          formatBookingRange: _formatBookingRange,
+          formatBookingRangeWithTime: _formatBookingRangeWithTime,
+        );
+      },
+    );
+  }
+
+  Future<void> _handleBookingFlow(BuildContext context) async {
+    final vData = await sl<VerificationRepository>().getVerificationData();
+    if (vData.status != VerificationStatus.verified) {
+      if (!context.mounted) return;
+      _showVerificationRequiredDialog(context, vData);
+      return;
+    }
+
+    if (vData.licenseExpiryDate != null &&
+        vData.licenseExpiryDate!.isNotEmpty) {
+      try {
+        final parts = vData.licenseExpiryDate!.split('/');
+        if (parts.length == 3) {
+          final expiry = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+          if (expiry.isBefore(DateTime.now())) {
+            if (!context.mounted) return;
+            _showVerificationRequiredDialog(context, vData, isExpired: true);
+            return;
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (!context.mounted) return;
+    // Luôn hiển thị lịch để người dùng kiểm tra hoặc đổi lại ngày thuê, tránh chọn nhầm ngày
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
     final pickedRange = await _pickDateRange(context);
     if (pickedRange == null) return;
     setState(() => _selectedDateRange = pickedRange);
 
     if (!context.mounted) return;
+<<<<<<< HEAD
     AppToast.show(
       context,
       message: 'Đã chọn thuê xe ${car.name} ($_rentalDays ngày)!',
       type: AppToastType.success,
+=======
+    CarDetailBookingModalSheet.show(
+      context: context,
+      car: car,
+      selectedDateRange: _selectedDateRange!,
+      rentalDays: _rentalDays,
+      totalPrice: _totalPrice,
+      formatPrice: _formatPrice,
+    );
+  }
+
+  void _showVerificationRequiredDialog(
+    BuildContext context,
+    VerificationData vData, {
+    bool isExpired = false,
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: AppColors.warning),
+            const SizedBox(width: 8),
+            Text(
+              'Xác minh tài khoản',
+              style: AppTypography.titleMedium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          isExpired
+              ? 'Giấy phép lái xe của bạn đã hết hạn. Vui lòng cập nhật GPLX mới để tiếp tục đặt thuê xe.'
+              : 'Bạn cần hoàn thành Xác minh danh tính & Giấy phép lái xe (KYC) trước khi bắt đầu thuê xe trên hệ thống.',
+          style: AppTypography.body,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Để sau'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      IdentityVerificationScreen(initialData: vData),
+                ),
+              );
+            },
+            child: const Text('Xác minh ngay'),
+          ),
+        ],
+      ),
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
     );
   }
 
