@@ -1,6 +1,6 @@
-import 'package:book_drive_car/features/home/data/datasources/home_remote_data_source.dart';
-import 'package:book_drive_car/features/home/domain/entities/car_entity.dart';
-import 'package:book_drive_car/features/home/domain/repositories/home_repository.dart';
+import 'package:book_car/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:book_car/features/home/domain/entities/car_entity.dart';
+import 'package:book_car/features/home/domain/repositories/home_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: HomeRepository)

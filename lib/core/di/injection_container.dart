@@ -21,8 +21,14 @@ import 'package:book_car/features/ai_assistant/domain/usecases/send_ai_chat_mess
 import 'package:book_car/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+import 'package:book_car/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:book_car/features/home/data/repositories/home_repository_impl.dart';
+import 'package:book_car/features/home/domain/repositories/home_repository.dart';
+=======
 import 'package:book_car/features/profile/data/datasources/verification_remote_data_source.dart';
 import 'package:book_car/features/profile/data/datasources/vehicle_remote_data_source.dart';
+>>>>>>> 413a08db6a0a0c2d3ccc9454eb1d336d14d8dbfb
 =======
 import 'package:book_car/features/wallet/data/datasources/wallet_remote_data_source.dart';
 import 'package:book_car/features/wallet/data/repositories/wallet_repository_impl.dart';
@@ -155,6 +161,17 @@ Future<void> configureDependencies() async {
 =======
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+  // 6. Home Feature
+  if (!sl.isRegistered<HomeRemoteDataSource>()) {
+    sl.registerLazySingleton<HomeRemoteDataSource>(
+      () => HomeRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
+    );
+  }
+  if (!sl.isRegistered<HomeRepository>()) {
+    sl.registerLazySingleton<HomeRepository>(
+      () => HomeRepositoryImpl(sl<HomeRemoteDataSource>()),
+=======
   // 6. Verification & Vehicle Data Sources
   if (!sl.isRegistered<VerificationRemoteDataSource>()) {
     sl.registerLazySingleton<VerificationRemoteDataSource>(
@@ -164,6 +181,7 @@ Future<void> configureDependencies() async {
   if (!sl.isRegistered<VehicleRemoteDataSource>()) {
     sl.registerLazySingleton<VehicleRemoteDataSource>(
       () => VehicleRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
+>>>>>>> 413a08db6a0a0c2d3ccc9454eb1d336d14d8dbfb
     );
   }
 =======

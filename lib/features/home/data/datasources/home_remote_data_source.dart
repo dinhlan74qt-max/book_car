@@ -1,6 +1,6 @@
-import 'package:book_drive_car/core/storage/user_local_storage.dart';
-import 'package:book_drive_car/features/home/data/models/car_model.dart';
-import 'package:book_drive_car/shared/constants/api_constants.dart';
+import 'package:book_car/core/storage/user_local_storage.dart';
+import 'package:book_car/features/home/data/models/car_model.dart';
+import 'package:book_car/shared/constants/api_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
