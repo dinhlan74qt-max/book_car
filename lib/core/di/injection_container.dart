@@ -20,8 +20,20 @@ import 'package:book_car/features/ai_assistant/domain/repositories/ai_repository
 import 'package:book_car/features/ai_assistant/domain/usecases/send_ai_chat_message.dart';
 import 'package:book_car/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
 
+<<<<<<< HEAD
 import 'package:book_car/features/profile/data/datasources/verification_remote_data_source.dart';
 import 'package:book_car/features/profile/data/datasources/vehicle_remote_data_source.dart';
+=======
+import 'package:book_car/features/wallet/data/datasources/wallet_remote_data_source.dart';
+import 'package:book_car/features/wallet/data/repositories/wallet_repository_impl.dart';
+import 'package:book_car/features/wallet/domain/repositories/wallet_repository.dart';
+import 'package:book_car/features/wallet/domain/usecases/deposit.dart';
+import 'package:book_car/features/wallet/domain/usecases/get_my_wallet.dart';
+import 'package:book_car/features/wallet/domain/usecases/withdraw.dart';
+import 'package:book_car/features/wallet/presentation/bloc/deposit_bloc.dart';
+import 'package:book_car/features/wallet/presentation/bloc/wallet_bloc.dart';
+import 'package:book_car/features/wallet/presentation/bloc/withdraw_bloc.dart';
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
 
 final sl = GetIt.instance;
 
@@ -111,6 +123,7 @@ Future<void> configureDependencies() async {
     );
   }
 
+<<<<<<< HEAD
   // 6. Verification & Vehicle Data Sources
   if (!sl.isRegistered<VerificationRemoteDataSource>()) {
     sl.registerLazySingleton<VerificationRemoteDataSource>(
@@ -122,4 +135,42 @@ Future<void> configureDependencies() async {
       () => VehicleRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
     );
   }
+=======
+  // 6. Wallet Feature
+  if (!sl.isRegistered<WalletRemoteDataSource>()) {
+    sl.registerLazySingleton<WalletRemoteDataSource>(
+      () => WalletRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
+    );
+  }
+
+  if (!sl.isRegistered<WalletRepository>()) {
+    sl.registerLazySingleton<WalletRepository>(
+      () => WalletRepositoryImpl(sl<WalletRemoteDataSource>()),
+    );
+  }
+
+  if (!sl.isRegistered<GetMyWallet>()) {
+    sl.registerFactory<GetMyWallet>(() => GetMyWallet(sl<WalletRepository>()));
+  }
+
+  if (!sl.isRegistered<Deposit>()) {
+    sl.registerFactory<Deposit>(() => Deposit(sl<WalletRepository>()));
+  }
+
+  if (!sl.isRegistered<Withdraw>()) {
+    sl.registerFactory<Withdraw>(() => Withdraw(sl<WalletRepository>()));
+  }
+
+  if (!sl.isRegistered<WalletBloc>()) {
+    sl.registerFactory<WalletBloc>(() => WalletBloc(sl<WalletRepository>()));
+  }
+
+  if (!sl.isRegistered<DepositBloc>()) {
+    sl.registerFactory<DepositBloc>(() => DepositBloc(sl<Deposit>()));
+  }
+
+  if (!sl.isRegistered<WithdrawBloc>()) {
+    sl.registerFactory<WithdrawBloc>(() => WithdrawBloc(sl<Withdraw>()));
+  }
+>>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
 }
