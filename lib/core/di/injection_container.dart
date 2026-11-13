@@ -20,6 +20,10 @@ import 'package:book_car/features/ai_assistant/domain/repositories/ai_repository
 import 'package:book_car/features/ai_assistant/domain/usecases/send_ai_chat_message.dart';
 import 'package:book_car/features/ai_assistant/presentation/bloc/ai_assistant_bloc.dart';
 
+import 'package:book_car/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:book_car/features/home/data/repositories/home_repository_impl.dart';
+import 'package:book_car/features/home/domain/repositories/home_repository.dart';
+
 final sl = GetIt.instance;
 
 @InjectableInit()
@@ -105,6 +109,18 @@ Future<void> configureDependencies() async {
   if (!sl.isRegistered<AiAssistantBloc>()) {
     sl.registerFactory<AiAssistantBloc>(
       () => AiAssistantBloc(sl<SendAiChatMessage>()),
+    );
+  }
+
+  // 6. Home Feature
+  if (!sl.isRegistered<HomeRemoteDataSource>()) {
+    sl.registerLazySingleton<HomeRemoteDataSource>(
+      () => HomeRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
+    );
+  }
+  if (!sl.isRegistered<HomeRepository>()) {
+    sl.registerLazySingleton<HomeRepository>(
+      () => HomeRepositoryImpl(sl<HomeRemoteDataSource>()),
     );
   }
 }
