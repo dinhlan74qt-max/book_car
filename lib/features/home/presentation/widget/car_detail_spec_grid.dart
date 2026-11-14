@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import 'package:book_car/core/theme/app_colors.dart';
-import 'package:book_car/core/utils/responsive_utils.dart';
-=======
 import 'package:book_drive_car/core/theme/app_colors.dart';
 import 'package:book_drive_car/core/utils/responsive_utils.dart';
->>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
 import 'package:flutter/material.dart';
 
 class SpecItem {

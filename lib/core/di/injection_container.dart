@@ -24,7 +24,6 @@ import 'package:book_car/features/home/data/datasources/home_remote_data_source.
 import 'package:book_car/features/home/data/repositories/home_repository_impl.dart';
 import 'package:book_car/features/home/domain/repositories/home_repository.dart';
 
-import 'package:book_car/features/profile/data/datasources/user_security_remote_data_source.dart';
 import 'package:book_car/features/profile/data/datasources/verification_remote_data_source.dart';
 import 'package:book_car/features/profile/data/datasources/vehicle_remote_data_source.dart';
 
@@ -139,7 +138,7 @@ Future<void> configureDependencies() async {
     );
   }
 
-  // 7. Verification, Security & Vehicle Data Sources
+  // 7. Verification & Vehicle Data Sources
   if (!sl.isRegistered<VerificationRemoteDataSource>()) {
     sl.registerLazySingleton<VerificationRemoteDataSource>(
       () => VerificationRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
@@ -148,11 +147,6 @@ Future<void> configureDependencies() async {
   if (!sl.isRegistered<VehicleRemoteDataSource>()) {
     sl.registerLazySingleton<VehicleRemoteDataSource>(
       () => VehicleRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
-    );
-  }
-  if (!sl.isRegistered<UserSecurityRemoteDataSource>()) {
-    sl.registerLazySingleton<UserSecurityRemoteDataSource>(
-      () => UserSecurityRemoteDataSourceImpl(sl<Dio>(), sl<UserLocalStorage>()),
     );
   }
 
