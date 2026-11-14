@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-import 'package:book_car/core/di/injection_container.dart';
-import 'package:book_car/core/theme/app_colors.dart';
-import 'package:book_car/core/theme/app_typography.dart';
-import 'package:book_car/core/utils/responsive_utils.dart';
-import 'package:book_car/features/home/data/models/car_model.dart';
-import 'package:book_car/features/home/domain/repositories/home_repository.dart';
-import 'package:book_car/features/home/domain/entities/car_entity.dart';
-import 'package:book_car/features/home/presentation/view/car_detail/widgets/car_detail_header_widgets.dart';
-import 'package:book_car/features/home/presentation/widget/car_detail_review_card.dart';
-import 'package:book_car/features/home/presentation/widget/car_detail_spec_grid.dart';
-import 'package:book_car/features/home/presentation/widget/car_detail_terms_card.dart';
-import 'package:book_car/shared/widget/app_buttons.dart';
-import 'package:book_car/shared/widget/app_toast.dart';
-import 'package:book_car/shared/widget/tap_scale.dart';
-=======
 import 'package:book_drive_car/core/di/injection_container.dart';
 import 'package:book_drive_car/core/theme/app_colors.dart';
 import 'package:book_drive_car/core/theme/app_typography.dart';
@@ -35,7 +19,6 @@ import 'package:book_drive_car/features/profile/presentation/view/identity_verif
 import 'package:book_drive_car/shared/widget/app_buttons.dart';
 import 'package:book_drive_car/shared/widget/app_toast.dart';
 import 'package:book_drive_car/shared/widget/tap_scale.dart';
->>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -67,20 +50,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   }
 
   void _initFavorite() {
-<<<<<<< HEAD
-    _isFavorite = false;
-  }
-
-  Future<void> _toggleFavorite() async {
-    setState(() => _isFavorite = !_isFavorite);
-    AppToast.show(
-      context,
-      message: _isFavorite
-          ? 'Đã thêm ${car.name} vào danh sách yêu thích'
-          : 'Đã xóa khỏi danh sách yêu thích',
-      type: AppToastType.success,
-    );
-=======
     _isFavorite = FavoriteManager.instance.isFavorite(widget.car.id);
     if (!FavoriteManager.instance.hasInitialLoaded) {
       FavoriteManager.instance.loadFavorites().then((_) {
@@ -147,26 +116,15 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
     } catch (e) {
       debugPrint('[CarDetailScreen][_toggleFavorite] Server sync log: $e');
     }
->>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
   }
 
   Future<void> _fetchCarDetail() async {
     try {
-<<<<<<< HEAD
-      if (sl.isRegistered<HomeRepository>()) {
-        final detail = await sl<HomeRepository>().getCarDetail(widget.car.id);
-        if (mounted) {
-          setState(() {
-            _car = detail;
-          });
-        }
-=======
       final detail = await sl<HomeRepository>().getCarDetail(widget.car.id);
       if (mounted) {
         setState(() {
           _car = detail;
         });
->>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
       }
     } catch (_) {
       // Giữ thông tin xe ban đầu nếu không thể tải thêm
@@ -252,31 +210,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
   }
 
   Future<DateTimeRange?> _pickDateRange(BuildContext context) async {
-<<<<<<< HEAD
-    final now = DateTime.now();
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 90)),
-      initialDateRange: _selectedDateRange ??
-          DateTimeRange(start: now, end: now.add(const Duration(days: 1))),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: AppColors.primary,
-              brightness: Theme.of(context).brightness,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    return picked;
-  }
-
-  Future<void> _handleBookingFlow(BuildContext context) async {
-=======
     final vehicleId = _vehicleId;
     if (vehicleId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -350,18 +283,11 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
 
     if (!context.mounted) return;
     // Luôn hiển thị lịch để người dùng kiểm tra hoặc đổi lại ngày thuê, tránh chọn nhầm ngày
->>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
     final pickedRange = await _pickDateRange(context);
     if (pickedRange == null) return;
     setState(() => _selectedDateRange = pickedRange);
 
     if (!context.mounted) return;
-<<<<<<< HEAD
-    AppToast.show(
-      context,
-      message: 'Đã chọn thuê xe ${car.name} ($_rentalDays ngày)!',
-      type: AppToastType.success,
-=======
     CarDetailBookingModalSheet.show(
       context: context,
       car: car,
@@ -419,7 +345,6 @@ class _CarDetailScreenState extends State<CarDetailScreen> {
           ),
         ],
       ),
->>>>>>> a3764cc6c36a0dbc2b2f92e41578b08ef1633385
     );
   }
 
